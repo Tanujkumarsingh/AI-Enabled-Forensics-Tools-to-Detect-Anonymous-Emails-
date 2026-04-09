@@ -1,0 +1,36 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-F59AF73D
+  Generated : 2026-03-21 13:19:03 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Congratulations! You have won $1000000
+  Sender                : lottery-winner@free-prize-claim.xyz
+  Domain                : free-prize-claim.xyz
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 100.0 / 100
+  Level                 : CRITICAL
+  Classification        : Unsafe
+    ► SPF ERROR — sender domain not authorized
+    ► DKIM NONE — message integrity not verified
+    ► Phishing keywords detected: score 100/100, 7 matches (critical, high, medium) +40pts
+    ► Suspicious subject line keywords: won, congratulations
+    ► Phishing campaign pattern: Lottery / prize scam, Winner notification scam, Prize winner scam +30pts
+    ► Prize/lottery scam pattern
+    ► Fee-required scam pattern
+    ► Prize claim scam
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

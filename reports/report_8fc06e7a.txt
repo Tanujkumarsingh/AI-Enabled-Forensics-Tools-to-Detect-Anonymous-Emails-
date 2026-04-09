@@ -1,0 +1,28 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-B10E3586
+  Generated : 2026-03-21 13:18:22 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Meeting tomorrow at 3pm
+  Sender                : john.smith@techcorp.com
+  Domain                : techcorp.com
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 0.0 / 100
+  Level                 : LOW
+  Classification        : Safe
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

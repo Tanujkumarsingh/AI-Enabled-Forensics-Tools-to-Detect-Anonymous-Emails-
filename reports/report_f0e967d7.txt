@@ -1,0 +1,29 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-E4D4BAD5
+  Generated : 2026-03-21 13:21:00 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Lunch plans?
+  Sender                : neha.patel@gmail.com
+  Domain                : gmail.com
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 10.0 / 100
+  Level                 : LOW
+  Classification        : Safe
+    ► DKIM NONE — message integrity not verified
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

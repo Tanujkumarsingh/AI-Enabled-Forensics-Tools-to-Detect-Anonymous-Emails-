@@ -1,0 +1,33 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-31C7E562
+  Generated : 2026-03-21 13:20:21 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Your password has expired - reset now
+  Sender                : noreply@microsoft-account-services.net
+  Domain                : microsoft-account-services.net
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 80.0 / 100
+  Level                 : CRITICAL
+  Classification        : Unsafe
+    ► SPF ERROR — sender domain not authorized
+    ► DKIM NONE — message integrity not verified
+    ► 1 suspicious URL(s) detected (+10pts)
+    ► Phishing campaign pattern: Urgency phishing, Brand impersonation phishing +30pts
+    ► Brand impersonation: 'microsoft' in domain but not the real microsoft.com
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

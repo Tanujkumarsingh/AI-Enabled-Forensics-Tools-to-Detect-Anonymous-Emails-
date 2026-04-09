@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — Analysis Result</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#080c10;--surface:#0d1520;--border:#1a2d45;--accent:#00d4ff;--accent2:#ff4c6a;--accent3:#39ff14;--warn:#f0a500;--text:#c8dce8;--muted:#4a6880;--card:#0f1e30;--font-mono:'Share Tech Mono',monospace;--font-head:'Rajdhani',sans-serif;--font-body:'Exo 2',sans-serif}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:56px;background:rgba(8,12,16,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}
+  .nav-logo{font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:2px}
+  .nav-logo span{color:var(--accent2)}
+  .nav-links{display:flex;gap:1.8rem}
+  .nav-links a{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);text-decoration:none;letter-spacing:1px;transition:color .2s}
+  .nav-links a:hover{color:var(--accent)}
+  .nav-user{font-family:var(--font-mono);font-size:.78rem;color:var(--accent3);letter-spacing:1px}
+  main{position:relative;z-index:1;padding:72px 1.5rem 3rem;max-width:1060px;margin:0 auto}
+  /* Pipeline */
+  .pipeline{display:flex;align-items:center;margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);overflow-x:auto}
+  .ps{flex:1;min-width:110px;padding:.8rem .7rem;text-align:center;border-right:1px solid var(--border)}
+  .ps:last-child{border-right:none}
+  .ps .psn{font-family:var(--font-mono);font-size:.55rem;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:.2rem}
+  .ps .psl{font-family:var(--font-mono);font-size:.65rem;color:var(--text);letter-spacing:1px;display:block}
+  .ps.done{background:rgba(57,255,20,.04)}.ps.done .psl{color:var(--accent3)}
+  .ps.skip{opacity:.3}
+  /* Verdict Banner */
+  .verdict-banner{display:flex;align-items:center;justify-content:space-between;padding:1.4rem 2rem;margin-bottom:1.2rem;border:1px solid var(--border);background:var(--surface)}
+  .verdict-banner.human-safe{border-left:4px solid var(--accent3)}
+  .verdict-banner.human-unsafe{border-left:4px solid var(--accent2)}
+  .verdict-banner.ai-email{border-left:4px solid var(--warn)}
+  .verdict-left h2{font-family:var(--font-head);font-size:1.4rem;font-weight:700;letter-spacing:2px;color:#fff}
+  .verdict-left p{font-family:var(--font-mono);font-size:.7rem;color:var(--muted);margin-top:.25rem;letter-spacing:1px}
+  .badge-row{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+  .vbadge{font-family:var(--font-head);font-size:.9rem;font-weight:700;letter-spacing:2px;padding:.4rem 1.2rem;border:1px solid currentColor}
+  .vbadge.ai{color:var(--warn);border-color:var(--warn)}
+  .vbadge.human{color:var(--accent3);border-color:var(--accent3)}
+  .vbadge.safe{color:var(--accent3);border-color:var(--accent3)}
+  .vbadge.unsafe{color:var(--accent2);border-color:var(--accent2)}
+  /* AI-only block */
+  .ai-block{background:rgba(240,165,0,.05);border:1px solid var(--warn);padding:1.4rem 1.8rem;margin-bottom:1.5rem}
+  .ai-block-head{display:flex;align-items:center;gap:1rem;margin-bottom:.9rem}
+  .ai-block-icon{font-size:2rem}
+  .ai-block-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--warn);letter-spacing:2px}
+  .ai-block-sub{font-family:var(--font-mono);font-size:.7rem;color:var(--muted);line-height:1.8}
+  .ai-safe-unsafe{display:flex;gap:2rem;margin-top:1rem;padding:1rem;background:var(--surface);border:1px solid var(--border)}
+  .ai-su-label{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);letter-spacing:2px;margin-bottom:.3rem}
+  .ai-su-val{font-family:var(--font-head);font-size:1.3rem;font-weight:700;letter-spacing:1px}
+  .ai-su-val.safe{color:var(--accent3)}.ai-su-val.unsafe{color:var(--accent2)}
+  /* Risk meter */
+  .risk-section{display:flex;align-items:center;gap:2rem;padding:1.4rem 2rem;margin-bottom:1.2rem;background:var(--surface);border:1px solid var(--border)}
+  .risk-circle{width:86px;height:86px;flex-shrink:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-mono);border:3px solid var(--border)}
+  .risk-val{font-size:1.4rem;font-weight:bold}.risk-lbl{font-size:.55rem;color:var(--muted);letter-spacing:1px}
+  .risk-circle.low{border-color:var(--accent3)}.risk-circle.low .risk-val{color:var(--accent3)}
+  .risk-circle.med{border-color:var(--warn)}.risk-circle.med .risk-val{color:var(--warn)}
+  .risk-circle.high{border-color:var(--accent2)}.risk-circle.high .risk-val{color:var(--accent2)}
+  .risk-info h3{font-family:var(--font-head);font-size:.9rem;letter-spacing:1px;color:#fff;margin-bottom:.4rem}
+  .risk-bar-wrap{background:var(--border);height:5px;width:240px;max-width:100%;margin-bottom:.4rem}
+  .risk-bar{height:100%}.risk-bar.low{background:var(--accent3)}.risk-bar.med{background:var(--warn)}.risk-bar.high{background:var(--accent2)}
+  .risk-cls{font-family:var(--font-mono);font-size:.72rem}.safe{color:var(--accent3)}.unsafe{color:var(--accent2)}
+  /* Cards grid */
+  .sections{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1.2rem}
+  @media(max-width:680px){.sections{grid-template-columns:1fr}}
+  .sc{background:var(--card);padding:1.2rem}
+  .sc-title{font-family:var(--font-mono);font-size:.65rem;letter-spacing:2px;color:var(--accent);margin-bottom:.9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+  .kv{display:flex;justify-content:space-between;align-items:flex-start;padding:.28rem 0;gap:1rem}
+  .kv+.kv{border-top:1px solid rgba(26,45,69,.4)}
+  .kk{font-family:var(--font-mono);font-size:.66rem;color:var(--muted);flex-shrink:0}
+  .kv-val{font-family:var(--font-mono);font-size:.7rem;color:var(--text);word-break:break-all;text-align:right}
+  .kv-val.accent{color:var(--accent)}.kv-val.danger{color:var(--accent2)}.kv-val.success{color:var(--accent3)}.kv-val.warn{color:var(--warn)}
+  /* Full-width card */
+  .fc{background:var(--card);border:1px solid var(--border);padding:1.2rem;margin-bottom:1.2rem}
+  .fc-title{font-family:var(--font-mono);font-size:.65rem;letter-spacing:2px;color:var(--accent);margin-bottom:.9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+  /* Social links */
+  .social-grid{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.6rem}
+  .slink{font-family:var(--font-mono);font-size:.66rem;padding:.28rem .7rem;border:1px solid;text-decoration:none;transition:all .2s;white-space:nowrap}
+  .slink.confirmed{border-color:var(--accent3);color:var(--accent3)}.slink.confirmed:hover{background:rgba(57,255,20,.1)}
+  .slink.search{border-color:var(--muted);color:var(--muted)}.slink.search:hover{border-color:var(--accent);color:var(--accent)}
+  /* Anonymity */
+  .anon-block{padding:1.2rem;margin-bottom:1.2rem;border:1px solid var(--border);background:var(--card)}
+  .anon-block.fully-anon{border-color:var(--accent2);background:rgba(255,76,106,.04)}
+  .anon-score-row{display:flex;align-items:center;gap:1.5rem;margin-bottom:.9rem}
+  .anon-score-circle{width:68px;height:68px;border-radius:50%;border:3px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-mono);flex-shrink:0}
+  .anon-score-circle.high-anon{border-color:var(--accent2)}.anon-score-circle.high-anon .anon-num{color:var(--accent2)}
+  .anon-score-circle.mid-anon{border-color:var(--warn)}.anon-score-circle.mid-anon .anon-num{color:var(--warn)}
+  .anon-score-circle.low-anon{border-color:var(--accent3)}.anon-score-circle.low-anon .anon-num{color:var(--accent3)}
+  .anon-num{font-size:1.2rem;font-weight:bold}.anon-lbl{font-size:.52rem;color:var(--muted);letter-spacing:1px}
+  .anon-verdict{font-family:var(--font-head);font-size:.95rem;font-weight:700;letter-spacing:1px;color:#fff}
+  .anon-verdict-sub{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);margin-top:.2rem}
+  .anon-msg{font-family:var(--font-mono);font-size:.75rem;color:var(--accent2);line-height:1.7;padding:.8rem 1rem;background:rgba(255,76,106,.06);border:1px solid rgba(255,76,106,.2);margin-top:.7rem}
+  .info-list{margin-top:.6rem}
+  .info-item{font-family:var(--font-mono);font-size:.68rem;padding:.25rem 0;border-bottom:1px solid rgba(26,45,69,.3);display:flex;gap:.5rem}
+  .info-item:last-child{border-bottom:none}
+  .info-item.found{color:var(--accent3)}.info-item.missing{color:var(--muted)}
+  /* Sender identity */
+  .sid-block{padding:1.2rem;margin-bottom:1.2rem;border:1px solid var(--border);background:var(--card)}
+  .sid-block.has-id{border-color:rgba(0,212,255,.3)}
+  .sid-title{font-family:var(--font-mono);font-size:.65rem;letter-spacing:2px;color:var(--accent);margin-bottom:.9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+  .sid-candidate{display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:.9rem}
+  .sid-score-badge{font-family:var(--font-mono);font-size:1.1rem;color:var(--accent);padding:.4rem .8rem;border:1px solid var(--accent);flex-shrink:0}
+  .sid-name{font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:.3rem}
+  .sid-meta{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);line-height:1.8}
+  .sid-meta span{color:var(--text)}
+  .sid-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem;margin-top:.7rem}
+  .sid-group-card{background:var(--surface);border:1px solid var(--border);padding:.65rem;cursor:default}
+  .sid-group-card.top-group{border-color:var(--accent)}
+  .sid-gname{font-family:var(--font-mono);font-size:.72rem;color:var(--text);margin-bottom:.2rem}
+  .sid-gmeta{font-family:var(--font-mono);font-size:.6rem;color:var(--muted)}
+  .anon-identity{font-family:var(--font-mono);font-size:.75rem;color:var(--muted);padding:.9rem;border:1px solid var(--border);background:var(--surface);line-height:1.8}
+  .anon-identity strong{color:var(--accent2)}
+  /* Growth notice */
+  .growth-notice{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);padding:.5rem 1rem;border:1px solid var(--border);background:var(--surface);margin-bottom:1.2rem;letter-spacing:1px}
+  .growth-notice span{color:var(--accent3)}
+  /* Signals */
+  .sig-item{padding:.4rem 0;font-family:var(--font-mono);font-size:.7rem;line-height:1.5;border-bottom:1px solid rgba(26,45,69,.4)}
+  .sig-item:last-child{border-bottom:none}
+  .sig-item.warn{color:var(--warn)}.sig-item.ok{color:var(--accent3)}.sig-item.bad{color:var(--accent2)}
+  /* Actions */
+  .actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;font-family:var(--font-head);font-size:.88rem;font-weight:600;letter-spacing:1px;cursor:pointer;text-decoration:none;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .2s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{border-color:var(--accent);color:var(--accent)}
+  .scanline{position:fixed;top:56px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 4s linear infinite;opacity:.3;pointer-events:none;z-index:200}
+  @keyframes scan{0%{top:56px}100%{top:100vh}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<nav>
+  <div class="nav-logo">Forens<span>IQ</span></div>
+  <div class="nav-links">
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('main.home') }}">Analyze</a>
+    <a href="{{ url_for('main.history') }}">History</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+  <div class="nav-user">[ {{ session.get('username','user') }} ]</div>
+</nav>
+
+<main>
+{% set ai_label       = ai_result.get('label','Unknown') if ai_result else 'Unknown' %}
+{% set risk           = forensic.get('risk_score',0)|float if forensic else 0 %}
+{% set classification = forensic.get('classification','N/A') if forensic else 'N/A' %}
+{% set risk_class     = 'high' if risk > 66 else ('med' if risk > 33 else 'low') %}
+{% set su             = su_result if su_result else {} %}
+{% set sid            = sender_id if sender_id else {} %}
+{% set step           = result.get('step',1) if result else 1 %}
+
+<!-- PIPELINE -->
+<div class="pipeline">
+  <div class="ps done"><span class="psn">STEP 1</span><span class="psl">🔬 AUTOPSY</span></div>
+  <div class="ps done"><span class="psn">STEP 2</span><span class="psl">🤖 AI vs HUMAN</span></div>
+  <div class="ps {{ 'done' if step >= 2 else 'skip' }}"><span class="psn">STEP 3</span><span class="psl">🛡 SAFE / UNSAFE</span></div>
+  <div class="ps {{ 'done' if step >= 2 and ai_label == 'Human' else 'skip' }}"><span class="psn">STEP 4</span><span class="psl">🌐 FORENSICS</span></div>
+  <div class="ps {{ 'done' if step >= 3 else ('done' if step == 2 else 'skip') }}"><span class="psn">STEP 5</span><span class="psl">📈 DATASET GROWTH</span></div>
+</div>
+
+<!-- VERDICT BANNER -->
+{% if ai_label == 'AI' %}
+<div class="verdict-banner ai-email">
+  <div class="verdict-left">
+    <h2>⚙ AI / MACHINE GENERATED EMAIL</h2>
+    <p>// CONFIDENCE: {{ ((ai_result.get('confidence',0) if ai_result else 0)*100)|round(1) }}% · {{ result.get('timestamp','') }}</p>
+  </div>
+  <div class="badge-row">
+    <span class="vbadge ai">AI GENERATED</span>
+    <span class="vbadge {{ 'unsafe' if classification == 'Unsafe' else 'safe' }}">{{ classification }}</span>
+  </div>
+</div>
+
+<!-- AI EMAIL BLOCK — only Safe/Unsafe shown, no forensics -->
+<div class="ai-block">
+  <div class="ai-block-head">
+    <div class="ai-block-icon">🤖</div>
+    <div>
+      <div class="ai-block-title">AUTOMATED / MACHINE GENERATED EMAIL</div>
+      <div class="ai-block-sub">This email was sent by a bank, website, service, or automated system — not a real person.<br>
+      No IP/geolocation forensics or social profile lookup is performed for automated emails.</div>
+    </div>
+  </div>
+  <div class="ai-safe-unsafe">
+    <div>
+      <div class="ai-su-label">CLASSIFICATION</div>
+      <div class="ai-su-val {{ 'safe' if classification == 'Safe' else 'unsafe' }}">{{ classification }}</div>
+    </div>
+    <div>
+      <div class="ai-su-label">RISK SCORE</div>
+      <div class="ai-su-val {{ risk_class }}">{{ risk|int }} / 100</div>
+    </div>
+    <div>
+      <div class="ai-su-label">AI CONFIDENCE</div>
+      <div class="ai-su-val" style="color:var(--warn)">{{ ((ai_result.get('confidence',0) if ai_result else 0)*100)|round(1) }}%</div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- HUMAN EMAIL -->
+<div class="verdict-banner {{ 'human-unsafe' if classification == 'Unsafe' else 'human-safe' }}">
+  <div class="verdict-left">
+    <h2>✓ HUMAN-WRITTEN EMAIL</h2>
+    <p>// CONFIDENCE: {{ ((ai_result.get('confidence',0) if ai_result else 0)*100)|round(1) }}% · {{ result.get('timestamp','') }}</p>
+  </div>
+  <div class="badge-row">
+    <span class="vbadge human">HUMAN</span>
+    <span class="vbadge {{ 'unsafe' if classification == 'Unsafe' else 'safe' }}">{{ classification }}</span>
+  </div>
+</div>
+
+<!-- RISK METER -->
+<div class="risk-section">
+  <div class="risk-circle {{ risk_class }}">
+    <span class="risk-val">{{ risk|int }}</span>
+    <span class="risk-lbl">/ 100</span>
+  </div>
+  <div class="risk-info">
+    <h3>{{ classification }} — RISK SCORE {{ risk|int }}/100</h3>
+    <div class="risk-bar-wrap"><div class="risk-bar {{ risk_class }}" style="width:{{ risk|int }}%"></div></div>
+    <div class="risk-cls {{ 'safe' if classification == 'Safe' else 'unsafe' }}">
+      {{ '✓ Safe email — no major threats detected' if classification == 'Safe' else '⚠ Unsafe — phishing / suspicious indicators found' }}
+    </div>
+  </div>
+</div>
+
+<!-- GROWTH NOTICE -->
+<div class="growth-notice">
+  📊 <span>CONTINUOUS LEARNING</span> — This email has been added to the training dataset for both AI/Human and Safe/Unsafe classifiers.
+</div>
+
+<!-- NETWORK + AUTH GRID -->
+<div class="sections">
+  <div class="sc">
+    <div class="sc-title">📡 IP & GEOLOCATION</div>
+    {% set ap = autopsy if autopsy else {} %}
+    {% set fd = forensic if forensic else {} %}
+    <div class="kv"><span class="kk">IP Addresses</span><span class="kv-val accent">{{ ap.get('ip_addresses',[])|join(', ') or 'Not found' }}</span></div>
+    <div class="kv"><span class="kk">Geolocation</span><span class="kv-val">{{ fd.get('geolocation','—') }}</span></div>
+    <div class="kv"><span class="kk">ISP / Host</span><span class="kv-val">{{ fd.get('isp','—') }}</span></div>
+    <div class="kv"><span class="kk">Proxy / VPN</span><span class="kv-val {{ 'danger' if fd.get('proxy') else 'success' }}">{{ '⚠ YES' if fd.get('proxy') else '✓ No' }}</span></div>
+    <div class="kv"><span class="kk">Hosting / Cloud</span><span class="kv-val {{ 'warn' if fd.get('hosting') else '' }}">{{ '⚠ YES' if fd.get('hosting') else 'No' }}</span></div>
+    <div class="kv"><span class="kk">Port</span><span class="kv-val">{{ fd.get('port','25/587 SMTP') }}</span></div>
+    <div class="kv"><span class="kk">MAC Address</span><span class="kv-val">{{ fd.get('mac_address','N/A (not in headers)') }}</span></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title">🔐 EMAIL AUTHENTICATION</div>
+    {% set fd = forensic if forensic else {} %}
+    <div class="kv"><span class="kk">SPF</span><span class="kv-val {{ 'success' if fd.get('spf')=='pass' else ('danger' if fd.get('spf')=='fail' else '') }}">{{ fd.get('spf','unknown')|upper }}</span></div>
+    <div class="kv"><span class="kk">DKIM</span><span class="kv-val {{ 'success' if fd.get('dkim')=='pass' else ('danger' if fd.get('dkim')=='fail' else '') }}">{{ fd.get('dkim','unknown')|upper }}</span></div>
+    <div class="kv"><span class="kk">DMARC</span><span class="kv-val">{{ ap.get('dmarc_result','—') }}</span></div>
+    <div class="kv"><span class="kk">Spoof Detected</span><span class="kv-val {{ 'danger' if fd.get('spoof') else 'success' }}">{{ '⚠ YES' if fd.get('spoof') else '✓ No' }}</span></div>
+    <div class="kv"><span class="kk">Temp/Anon Mail</span><span class="kv-val {{ 'danger' if ap.get('is_temp_mail') else 'success' }}">{{ '⚠ YES' if ap.get('is_temp_mail') else '✓ No' }}</span></div>
+    <div class="kv"><span class="kk">Mail Provider</span><span class="kv-val">{{ fd.get('mail_server_provider','—') }}</span></div>
+    <div class="kv"><span class="kk">Email Exists</span><span class="kv-val {{ 'success' if fd.get('email_exists_status')=='exists' else '' }}">{{ fd.get('email_exists_status','—') }}</span></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title">🌐 DOMAIN DETAILS</div>
+    {% set fd = forensic if forensic else {} %}
+    <div class="kv"><span class="kk">Domain</span><span class="kv-val accent">{{ ap.get('sender_domain','—') }}</span></div>
+    <div class="kv"><span class="kk">Domain Age</span><span class="kv-val {{ 'danger' if 'day' in fd.get('domain_age','') else '' }}">{{ fd.get('domain_age','—') }}</span></div>
+    <div class="kv"><span class="kk">Created</span><span class="kv-val">{{ fd.get('domain_created','—') }}</span></div>
+    <div class="kv"><span class="kk">Expires</span><span class="kv-val">{{ fd.get('domain_expires','—') }}</span></div>
+    <div class="kv"><span class="kk">Registrar</span><span class="kv-val">{{ fd.get('domain_registrar','—') }}</span></div>
+    <div class="kv"><span class="kk">Org</span><span class="kv-val">{{ fd.get('domain_org','—') }}</span></div>
+    <div class="kv"><span class="kk">Nameservers</span><span class="kv-val">{{ fd.get('nameservers','—') }}</span></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title">📧 SENDER DETAILS</div>
+    {% set ap = autopsy if autopsy else {} %}
+    <div class="kv"><span class="kk">Sender Email</span><span class="kv-val accent">{{ ap.get('sender_email','—') }}</span></div>
+    <div class="kv"><span class="kk">Sender Name</span><span class="kv-val">{{ ap.get('sender_name','—') }}</span></div>
+    <div class="kv"><span class="kk">Reply-To</span><span class="kv-val {{ 'danger' if ap.get('reply_to') and ap.get('reply_to') != ap.get('sender_email') else '' }}">{{ ap.get('reply_to','—') }}</span></div>
+    <div class="kv"><span class="kk">Return-Path</span><span class="kv-val">{{ ap.get('return_path','—') }}</span></div>
+    <div class="kv"><span class="kk">Date Sent</span><span class="kv-val">{{ ap.get('date_sent','—') }}</span></div>
+    <div class="kv"><span class="kk">Subject</span><span class="kv-val">{{ ap.get('subject','—')[:60] }}</span></div>
+    <div class="kv"><span class="kk">Phone in Body</span><span class="kv-val {{ 'accent' if forensic.get('phones') else '' }}">{{ forensic.get('phones','None found') }}</span></div>
+  </div>
+</div>
+
+<!-- SMTP + MX -->
+<div class="sections" style="margin-bottom:1.2rem">
+  <div class="sc">
+    <div class="sc-title">📬 SMTP VERIFICATION</div>
+    {% set fd = forensic if forensic else {} %}
+    <div class="kv"><span class="kk">Status</span><span class="kv-val {{ 'success' if fd.get('email_exists_status')=='exists' else 'danger' if fd.get('email_exists_status')=='not_found' else '' }}">{{ fd.get('email_exists_status','unknown') }}</span></div>
+    <div class="kv"><span class="kk">SMTP Server</span><span class="kv-val">{{ fd.get('email_smtp_server','—') }}</span></div>
+    <div class="kv"><span class="kk">SMTP Code</span><span class="kv-val">{{ fd.get('smtp_code','—') }}</span></div>
+    <div class="kv"><span class="kk">Catch-All</span><span class="kv-val">{{ 'Yes' if fd.get('catch_all') else 'No' }}</span></div>
+    <div class="kv"><span class="kk">Note</span><span class="kv-val">{{ fd.get('email_exists_note','—')[:80] }}</span></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title">⚠ THREAT SIGNALS</div>
+    {% set fd = forensic if forensic else {} %}
+    <div class="kv"><span class="kk">Risk Level</span><span class="kv-val {{ 'danger' if fd.get('level') in ['HIGH','CRITICAL'] else 'warn' if fd.get('level')=='MEDIUM' else 'success' }}">{{ fd.get('level','—') }}</span></div>
+    <div class="kv"><span class="kk">Phishing Host</span><span class="kv-val {{ 'danger' if fd.get('phishing_host') else '' }}">{{ fd.get('phishing_host','None') }}</span></div>
+    <div class="kv"><span class="kk">Keyword Score</span><span class="kv-val {{ 'danger' if fd.get('keyword_score',0) > 50 else 'warn' if fd.get('keyword_score',0) > 25 else '' }}">{{ fd.get('keyword_score',0) }}</span></div>
+    <div class="kv"><span class="kk">Phishing Campaign</span><span class="kv-val {{ 'danger' if fd.get('phishing_campaign') else '' }}">{{ fd.get('phishing_campaign','None detected') }}</span></div>
+    <div class="kv"><span class="kk">Suspicious URLs</span><span class="kv-val {{ 'danger' if autopsy.get('suspicious_urls') else '' }}">{{ autopsy.get('suspicious_urls',[])|length }} found</span></div>
+  </div>
+</div>
+
+<!-- ANONYMITY BLOCK -->
+{% set anon_data = anon if anon else {} %}
+{% set anon_score = anon_data.get('score',0) %}
+{% set anon_class = 'high-anon' if anon_score >= 60 else ('mid-anon' if anon_score >= 30 else 'low-anon') %}
+<div class="anon-block {{ 'fully-anon' if anon_score >= 80 else '' }}">
+  <div class="fc-title">🕵 ANONYMITY ASSESSMENT</div>
+  <div class="anon-score-row">
+    <div class="anon-score-circle {{ anon_class }}">
+      <span class="anon-num">{{ anon_score }}</span>
+      <span class="anon-lbl">/ 100</span>
+    </div>
+    <div>
+      <div class="anon-verdict">{{ anon_data.get('verdict','N/A') }}</div>
+      <div class="anon-verdict-sub">Higher score = more anonymous. Lower = more identifiable.</div>
+    </div>
+  </div>
+  {% if anon_data.get('found') %}
+  <div class="info-list">
+    <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent);margin-bottom:.3rem;letter-spacing:1px">INFORMATION FOUND:</div>
+    {% for item in anon_data.get('found',[]) %}
+    <div class="info-item found">✓ {{ item }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if anon_data.get('missing') %}
+  <div class="info-list" style="margin-top:.5rem">
+    <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-bottom:.3rem;letter-spacing:1px">INFORMATION MISSING:</div>
+    {% for item in anon_data.get('missing',[]) %}
+    <div class="info-item missing">✗ {{ item }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- SOCIAL LINKS -->
+{% set fd = forensic if forensic else {} %}
+{% set social_list = fd.get('social_links_list',[]) %}
+<div class="fc">
+  <div class="fc-title">🔗 SOCIAL MEDIA & OSINT LINKS</div>
+  {% if social_list %}
+  <div class="social-grid">
+    {% for lk in social_list %}
+      {% if lk.get('url') %}
+      <a href="{{ lk['url'] }}" target="_blank" rel="noopener"
+         class="slink {{ 'confirmed' if lk.get('found') is true else 'search' }}">
+        {{ '✓' if lk.get('found') is true else '⌕' }} {{ lk.get('platform','Link') }}
+      </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--muted);margin-top:.6rem">
+    ✓ Green = confirmed profile exists &nbsp;|&nbsp; Grey = search link (manual check needed)
+  </div>
+  {% else %}
+  <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);padding:.5rem 0">
+    No social links found for this sender.
+  </div>
+  {% endif %}
+  {% if fd.get('breach_count',0) > 0 %}
+  <div style="margin-top:.7rem;font-family:var(--font-mono);font-size:.72rem;color:var(--accent2)">
+    ⚠ Email found in <strong>{{ fd.get('breach_count') }}</strong> data breach(es)
+  </div>
+  {% endif %}
+  {% if fd.get('gravatar_found') %}
+  <div style="margin-top:.4rem;font-family:var(--font-mono);font-size:.72rem;color:var(--accent3)">
+    ✓ Gravatar profile linked to this email
+  </div>
+  {% endif %}
+</div>
+
+<!-- SENDER IDENTITY (only for unsafe emails) -->
+{% if classification == 'Unsafe' %}
+<div class="sid-block {{ 'has-id' if not sid.get('is_anonymous') else '' }}">
+  <div class="sid-title">🧬 SENDER IDENTITY ANALYSIS (AUTO-GROUPED BY NAME)</div>
+
+  {% if sid.get('is_anonymous') %}
+  <div class="anon-identity">
+    <strong>⚠ {{ sid.get('anonymous_reason','Anonymous — No Digital Footprint Found') }}</strong><br><br>
+    This sender could not be identified through social media, OSINT, or public databases.<br>
+    {% if sid.get('total_profiles_found',0) == 0 %}
+    Possible reasons: throwaway email account, no social media presence, or a very private individual.
+    {% endif %}
+  </div>
+
+  {% else %}
+  {% set top = sid.get('top_candidate') %}
+  {% if top %}
+  <div class="sid-candidate">
+    <div class="sid-score-badge">SCORE {{ top.get('score',0) }}</div>
+    <div>
+      <div class="sid-name">🎯 MOST LIKELY SENDER: {{ top.get('name','Unknown') }}</div>
+      <div class="sid-meta">
+        {% if top.get('location_match') %}<span>📍 Location Match: </span>{{ top.get('location_match') }}<br>{% endif %}
+        {% if top.get('qualification') %}<span>🎓 Qualification: </span>{{ top.get('qualification') }}<br>{% endif %}
+        <span>🔗 Profiles Found: </span>{{ top.get('profile_count',0) }}<br>
+        {% if sid.get('filter_used') %}
+        <span>🔍 Auto-filtered by: </span>
+        {{ sid.get('filter_used',{}).get('city','') }}
+        {{ sid.get('filter_used',{}).get('state','') }}
+        {{ sid.get('filter_used',{}).get('country','') }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if sid.get('groups') %}
+  <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-bottom:.5rem;letter-spacing:1px">ALL CANDIDATE GROUPS (ranked by name + location score):</div>
+  <div class="sid-groups">
+    {% for grp in sid.get('groups',[]) %}
+    <div class="sid-group-card {{ 'top-group' if loop.first else '' }}">
+      <div class="sid-gname">{{ '🥇' if loop.first else '👤' }} {{ grp.get('name','?') }}</div>
+      <div class="sid-gmeta">
+        Score: {{ grp.get('score',0) }} | Profiles: {{ grp.get('profile_count',0) }}<br>
+        {% if grp.get('location_match') %}📍 {{ grp.get('location_match') }}<br>{% endif %}
+        {% if grp.get('qualification') %}🎓 {{ grp.get('qualification') }}{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endif %}
+
+{% endif %}{# end human email block #}
+
+<!-- RISK SIGNALS -->
+{% set fd = forensic if forensic else {} %}
+{% if fd.get('factors') %}
+<div class="fc">
+  <div class="fc-title">⚡ RISK FACTORS</div>
+  {% for factor in fd.get('factors',[]) %}
+  <div class="sig-item bad">▶ {{ factor }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ACTIONS -->
+<div class="actions">
+  <a href="{{ url_for('main.home') }}" class="btn primary">⚡ Analyze Another</a>
+  <a href="{{ url_for('main.history') }}" class="btn">📋 View History</a>
+  <a href="{{ url_for('main.dashboard') }}" class="btn">📊 Dashboard</a>
+</div>
+</main>
+</body>
+</html>

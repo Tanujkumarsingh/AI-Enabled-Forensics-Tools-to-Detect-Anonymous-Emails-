@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — Analyze Email</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10; --surface: #0d1520; --border: #1a2d45;
+    --accent: #00d4ff; --accent2: #ff4c6a; --accent3: #39ff14;
+    --text: #c8dce8; --muted: #4a6880; --card: #0f1e30;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-body: 'Exo 2', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-body); min-height: 100vh;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+    background: rgba(8,12,16,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+  .nav-logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
+  .nav-logo span { color: var(--accent2); }
+  .nav-links { display: flex; gap: 1.8rem; }
+  .nav-links a { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); text-decoration: none; letter-spacing: 1px; transition: color .2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+  .nav-user { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent3); letter-spacing: 1px; }
+
+  main {
+    position: relative; z-index: 1;
+    padding: 80px 1.5rem 3rem;
+    max-width: 860px; margin: 0 auto;
+  }
+
+  .page-title {
+    font-family: var(--font-head); font-size: 1.8rem; font-weight: 700;
+    color: #fff; letter-spacing: 2px; margin-bottom: 0.4rem;
+  }
+  .page-subtitle {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--muted); letter-spacing: 1px; margin-bottom: 2.5rem;
+  }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--font-head); font-size: 1rem;
+    font-weight: 600; letter-spacing: 1px;
+    color: var(--muted);
+    padding: 0.8rem 1.8rem;
+    border-bottom: 2px solid transparent;
+    transition: all .2s; position: relative; top: 1px;
+  }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(0,212,255,0.04);
+  }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── FORM ELEMENTS ── */
+  .field { margin-bottom: 1.4rem; }
+  label {
+    display: block;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    color: var(--accent); letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+  }
+  input[type="text"], input[type="email"], textarea, select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono); font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color .2s;
+    resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  /* ── DROP ZONE ── */
+  .drop-zone {
+    border: 1px dashed var(--border);
+    background: var(--surface);
+    padding: 3rem 2rem; text-align: center;
+    cursor: pointer; transition: all .2s;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.04);
+  }
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+  .drop-text { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); }
+  .drop-text strong { color: var(--accent); }
+  .drop-hint { font-size: 0.7rem; color: var(--muted); margin-top: 0.4rem; }
+  .file-name {
+    margin-top: 1rem;
+    font-family: var(--font-mono); font-size: 0.8rem;
+    color: var(--accent3);
+  }
+
+  /* ── SUBMIT BUTTON ── */
+  .btn-submit {
+    display: inline-flex; align-items: center; gap: 0.8rem;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-head); font-size: 1rem;
+    font-weight: 600; letter-spacing: 2px;
+    padding: 0.85rem 2.2rem; cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: color .3s; margin-top: 0.5rem;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .btn-submit::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--accent); transform: translateX(-101%);
+    transition: transform .3s ease; z-index: -1;
+  }
+  .btn-submit:hover::before { transform: translateX(0); }
+  .btn-submit:hover { color: var(--bg); }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    display: flex; gap: 0.8rem; align-items: flex-start;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 1rem 1.2rem; margin-bottom: 2rem;
+    font-size: 0.8rem; color: var(--muted); line-height: 1.6;
+  }
+  .info-box .info-icon { color: var(--accent); font-size: 1rem; flex-shrink: 0; }
+
+  /* ── ROW ── */
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 580px) { .row { grid-template-columns: 1fr; } }
+
+  .scanline {
+    position: fixed; top: 56px; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 4s linear infinite; opacity: 0.3; pointer-events: none; z-index: 200;
+  }
+  @keyframes scan { 0% { top: 56px; } 100% { top: 100vh; } }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<nav>
+  <div class="nav-logo">Forens<span>IQ</span></div>
+  <div class="nav-links">
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('main.home') }}" class="active">Analyze</a>
+    <a href="{{ url_for('main.history') }}">History</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+  <div class="nav-user">[ {{ session.get('username', 'user') }} ]</div>
+</nav>
+
+<main>
+  <h1 class="page-title">⚡ Email Analysis</h1>
+  <p class="page-subtitle">// SELECT INPUT METHOD → UPLOAD FILE | MANUAL ENTRY | DATASET BATCH</p>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('file', this)">📎 File Upload</button>
+    <button class="tab-btn" onclick="switchTab('manual', this)">✏️ Manual Input</button>
+    <button class="tab-btn" onclick="switchTab('dataset', this)">📊 Dataset Batch</button>
+  </div>
+
+  <!-- ── TAB 1: FILE UPLOAD ── -->
+  <div class="tab-panel active" id="tab-file">
+    <div class="info-box">
+      <span class="info-icon">ℹ</span>
+      <span>Upload a raw email file. Supported: <strong>.eml</strong>, <strong>.txt</strong>, <strong>.msg</strong>.
+      The system will parse headers, extract IPs, detect if AI-generated, and run full forensics if human-origin.</span>
+    </div>
+    <form method="POST" action="{{ url_for('main.analyze_file') }}" enctype="multipart/form-data">
+      <div class="field">
+        <label>EMAIL FILE</label>
+        <div class="drop-zone" id="dropzone-file">
+          <input type="file" name="email_file" id="file-input" accept=".eml,.txt,.msg"
+                 onchange="showFileName(this, 'file-name-display')">
+          <span class="drop-icon">📧</span>
+          <p class="drop-text">Drag & drop or <strong>click to browse</strong></p>
+          <p class="drop-hint">Supported: .eml / .txt / .msg</p>
+          <div class="file-name" id="file-name-display"></div>
+        </div>
+      </div>
+      <button type="submit" class="btn-submit">RUN FORENSIC ANALYSIS →</button>
+    </form>
+  </div>
+
+  <!-- ── TAB 2: MANUAL INPUT ── -->
+  <div class="tab-panel" id="tab-manual">
+    <div class="info-box">
+      <span class="info-icon">ℹ</span>
+      <span>Manually enter email details. All fields except Body are optional.
+      The system will classify origin, score threat level, and trace any available network indicators.</span>
+    </div>
+    <form method="POST" action="{{ url_for('main.analyze_manual') }}" enctype="multipart/form-data">
+      <div class="row">
+        <div class="field">
+          <label>SENDER EMAIL</label>
+          <input type="text" name="sender_email" placeholder="sender@domain.com">
+        </div>
+        <div class="field">
+          <label>SUBJECT</label>
+          <input type="text" name="subject" placeholder="Email subject line">
+        </div>
+      </div>
+      <div class="field">
+        <label>EMAIL BODY *</label>
+        <textarea name="body" rows="8" placeholder="Paste the full email body content here..."></textarea>
+      </div>
+      <div class="field">
+        <label>URLS (one per line)</label>
+        <textarea name="urls" rows="3" placeholder="https://example.com&#10;https://another.com"></textarea>
+      </div>
+      <div class="field">
+        <label>ATTACHMENTS (optional)</label>
+        <input type="file" name="attachments" multiple
+               style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.6rem;width:100%;font-family:var(--font-mono);font-size:.82rem;">
+      </div>
+      <button type="submit" class="btn-submit">RUN FORENSIC ANALYSIS →</button>
+    </form>
+  </div>
+
+  <!-- ── TAB 3: DATASET ── -->
+  <div class="tab-panel" id="tab-dataset">
+    <div class="info-box">
+      <span class="info-icon">ℹ</span>
+      <span>Upload a CSV or XLSX dataset containing multiple emails.
+      Required columns: <strong>subject</strong>, <strong>from</strong> (or sender), <strong>body</strong>.
+      Results will be downloadable as a comprehensive forensic CSV report.</span>
+    </div>
+    <form method="POST" action="{{ url_for('main.analyze_dataset') }}" enctype="multipart/form-data">
+      <div class="field">
+        <label>DATASET FILE (CSV / XLSX)</label>
+        <div class="drop-zone" id="dropzone-dataset">
+          <input type="file" name="dataset_file" id="dataset-input" accept=".csv,.xlsx"
+                 onchange="showFileName(this, 'dataset-name-display')">
+          <span class="drop-icon">📊</span>
+          <p class="drop-text">Drag & drop or <strong>click to browse</strong></p>
+          <p class="drop-hint">Required columns: subject, from/sender, body | Supported: .csv, .xlsx</p>
+          <div class="file-name" id="dataset-name-display"></div>
+        </div>
+      </div>
+      <button type="submit" class="btn-submit">RUN BATCH ANALYSIS →</button>
+    </form>
+  </div>
+</main>
+
+<script>
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function showFileName(input, displayId) {
+    const display = document.getElementById(displayId);
+    if (input.files && input.files[0]) {
+      display.textContent = '✓ ' + input.files[0].name;
+    }
+  }
+
+  // Drag & drop visual feedback
+  ['dropzone-file', 'dropzone-dataset'].forEach(id => {
+    const zone = document.getElementById(id);
+    if (!zone) return;
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', () => zone.classList.remove('drag-over'));
+  });
+</script>
+</body>
+</html>

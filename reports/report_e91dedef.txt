@@ -1,0 +1,32 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-C7EBCC68
+  Generated : 2026-03-27 07:17:06 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Segregation and Monitoring of Collateral at Client Level for 28/02/2026 with FNO India Securities P.L.
+  Sender                : inspectioninfo@mcxindia.com
+  Domain                : mcxindia.com
+  Date Sent             : Thu, 19 Mar 2026 15:40:43 +0000
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 48.0 / 100
+  Level                 : MEDIUM
+  Classification        : Unsafe
+    ► DKIM NONE — message integrity not verified
+    ► Email spoofing detected — From/Return-Path domain mismatch
+    ► 1 attachment(s) present
+    ► High URL count in body: 7
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

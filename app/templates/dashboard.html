@@ -1,0 +1,263 @@
+<!-- ============================================================
+FILE: app/templates/dashboard.html
+PASTE THIS AS: app/templates/dashboard.html
+============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080c10;--surface:#0d1520;--border:#1a2d45;
+    --accent:#00d4ff;--accent2:#ff4c6a;--accent3:#39ff14;
+    --text:#c8dce8;--muted:#4a6880;--card:#0f1e30;
+    --font-mono:'Share Tech Mono',monospace;
+    --font-head:'Rajdhani',sans-serif;
+    --font-body:'Exo 2',sans-serif;
+  }
+  
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:56px;background:rgba(8,12,16,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}
+  .nav-logo{font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:2px;text-decoration:none}
+  .nav-logo span{color:var(--accent2)}
+  .nav-links{display:flex;gap:1.8rem}
+  .nav-links a{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);text-decoration:none;letter-spacing:1px;transition:color .2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--accent)}
+  .nav-user{font-family:var(--font-mono);font-size:.78rem;color:var(--accent3);letter-spacing:1px}
+
+  main{position:relative;z-index:1;padding-top:56px;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:3rem}
+
+  /* HERO */
+  .hero{text-align:center;padding:4rem 2rem 2.5rem;max-width:860px}
+  .hero-badge{display:inline-block;font-family:var(--font-mono);font-size:.7rem;color:var(--accent3);letter-spacing:3px;border:1px solid rgba(57,255,20,.3);padding:.3rem 1rem;border-radius:2px;margin-bottom:2rem;animation:blink 2s step-end infinite}
+  @keyframes blink{50%{border-color:rgba(57,255,20,.05);color:rgba(57,255,20,.3)}}
+  .hero h1{font-family:var(--font-head);font-size:clamp(2.2rem,6vw,3.8rem);font-weight:700;line-height:1.1;color:#fff;letter-spacing:3px;margin-bottom:1rem}
+  .hero h1 .hl{color:var(--accent)} .hero h1 .hl2{color:var(--accent2)}
+  .hero-subtitle{font-size:.95rem;color:var(--muted);max-width:620px;margin:0 auto 2.5rem;line-height:1.8}
+
+  /* FEATURE CARDS */
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);width:100%;max-width:860px;margin:0 auto 2.5rem}
+  .feature-card{background:var(--card);padding:1.4rem;transition:background .2s}
+  .feature-card:hover{background:rgba(0,212,255,.04)}
+  .feature-card .icon{font-size:1.4rem;margin-bottom:.6rem;display:block}
+  .feature-card h3{font-family:var(--font-head);font-size:.88rem;font-weight:600;color:var(--accent);letter-spacing:1px;margin-bottom:.35rem}
+  .feature-card p{font-size:.76rem;color:var(--muted);line-height:1.5}
+
+  /* STATS BAR */
+  .stats-bar{display:flex;gap:0;justify-content:center;width:100%;max-width:860px;border:1px solid var(--border);margin:0 auto 1.5rem;background:var(--surface)}
+  .stat-cell{flex:1;padding:1.2rem 1rem;text-align:center;border-right:1px solid var(--border)}
+  .stat-cell:last-child{border-right:none}
+  .stat-val{font-family:var(--font-mono);font-size:1.8rem;color:var(--accent);display:block}
+  .stat-label{font-size:.68rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+  .stat-cell.danger .stat-val{color:var(--accent2)}
+  .stat-cell.success .stat-val{color:var(--accent3)}
+
+  /* GROWTH PANEL (NEW) */
+  .growth-panel{width:100%;max-width:860px;margin:0 auto 2rem;background:var(--surface);border:1px solid var(--border)}
+  .growth-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.75rem 1.2rem;border-bottom:1px solid var(--border);
+  }
+  .growth-header h4{font-family:var(--font-mono);font-size:.72rem;letter-spacing:2px;color:var(--accent)}
+  .growth-live{font-family:var(--font-mono);font-size:.65rem;color:var(--accent3);letter-spacing:1px;animation:blink 2s step-end infinite}
+  .growth-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+  .growth-col{background:var(--card);padding:1rem 1.2rem}
+  .growth-col-title{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);letter-spacing:2px;margin-bottom:.6rem}
+  .growth-stat{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;font-family:var(--font-mono);font-size:.7rem;border-bottom:1px solid rgba(26,45,69,.4)}
+  .growth-stat:last-child{border-bottom:none}
+  .growth-stat-key{color:var(--muted)}
+  .growth-stat-val{color:var(--accent3)}
+  .growth-stat-val.warn{color:#f0a500}
+  .growth-progress{height:4px;background:var(--border);margin-top:.6rem;position:relative}
+  .growth-fill{height:100%;background:var(--accent3);transition:width .8s ease}
+
+  /* CTA */
+  .cta-section{text-align:center;padding:0 2rem 3rem}
+  .btn-next{display:inline-flex;align-items:center;gap:1rem;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:var(--font-head);font-size:1.1rem;font-weight:600;letter-spacing:3px;padding:1rem 2.5rem;cursor:pointer;text-decoration:none;position:relative;overflow:hidden;transition:color .3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px)100%,0% 100%)}
+  .btn-next::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-101%);transition:transform .3s ease;z-index:-1}
+  .btn-next:hover::before{transform:translateX(0)}
+  .btn-next:hover{color:var(--bg)}
+  .btn-next .arrow{font-size:1.3rem;transition:transform .3s}
+  .btn-next:hover .arrow{transform:translateX(6px)}
+  .cta-hint{font-family:var(--font-mono);font-size:.7rem;color:var(--muted);margin-top:1rem;letter-spacing:1px}
+
+  /* FLASH */
+  .flashes{position:fixed;top:70px;right:1rem;z-index:300;display:flex;flex-direction:column;gap:.5rem}
+  .flash{padding:.7rem 1.2rem;font-family:var(--font-mono);font-size:.75rem;border-left:3px solid var(--accent);background:var(--surface);animation:slideIn .3s ease}
+  @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+  /* FADE IN */
+  .fade-up{opacity:0;transform:translateY(20px);animation:fadeUp .6s ease forwards}
+  .d1{animation-delay:.1s}.d2{animation-delay:.25s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}.d5{animation-delay:.7s}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+  .scanline{position:fixed;top:56px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 4s linear infinite;opacity:.3;pointer-events:none;z-index:200}
+  @keyframes scan{0%{top:56px}100%{top:100vh}}
+
+  @media(max-width:600px){.stats-bar{flex-wrap:wrap}.stat-cell{flex:0 0 50%;border-bottom:1px solid var(--border)}.growth-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}<div class="flashes">{% for cat,msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}</div>{% endif %}
+{% endwith %}
+
+<nav>
+  <a href="{{ url_for('main.dashboard') }}" class="nav-logo">Forens<span>IQ</span></a>
+  <div class="nav-links">
+    <a href="{{ url_for('main.dashboard') }}" class="active">Dashboard</a>
+    <a href="{{ url_for('main.home') }}">Analyze</a>
+    <a href="{{ url_for('main.history') }}">History</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+  <div class="nav-user">[ {{ session.get('username','user') }} ]</div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-badge fade-up">◉ FORENSIC INTELLIGENCE SYSTEM ACTIVE</div>
+    <h1 class="fade-up d1">
+      AI-Powered<br>
+      <span class="hl">Email</span> <span class="hl2">Forensics</span>
+    </h1>
+    <p class="hero-subtitle fade-up d2">
+      Upload or enter any email and ForensIQ will determine if it's machine-generated or human-written,
+      trace its network origin, detect phishing patterns, validate authentication protocols (SPF/DKIM/DMARC),
+      extract OSINT intelligence, and produce a complete digital forensic report.
+    </p>
+  </section>
+
+  <div class="feature-grid fade-up d2">
+    <div class="feature-card">
+      <span class="icon">🔬</span>
+      <h3>Email Autopsy</h3>
+      <p>Breaks every email into 30+ structured forensic fields — headers, IPs, URLs, attachments, timestamps.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🤖</span>
+      <h3>AI vs Human</h3>
+      <p>Detects if the email was machine-generated using 28 NLP linguistic features trained on Enron, SpamAssassin & HC3 datasets.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🛡</span>
+      <h3>Safe vs Unsafe</h3>
+      <p>ML-powered phishing classifier (TF-IDF + RandomForest) runs only on human-authored emails with explainable signals.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🌐</span>
+      <h3>IP Geolocation</h3>
+      <p>Traces the full sender IP chain to country, city, ISP, and hosting provider.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">📈</span>
+      <h3>Self-Improving</h3>
+      <p>Every analyzed email is added to the training datasets. Both models auto-retrain as data grows — no manual intervention needed.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">📊</span>
+      <h3>Risk Scoring</h3>
+      <p>Multi-factor 0–100 threat score with explainable signals and Safe / Unsafe verdict.</p>
+    </div>
+  </div>
+
+  <!-- ANALYSIS STATS -->
+  <div class="stats-bar fade-up d3">
+    <div class="stat-cell">
+      <span class="stat-val">{{ stats.total }}</span>
+      <span class="stat-label">Total Analyzed</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-val">{{ stats.ai_count }}</span>
+      <span class="stat-label">AI Generated</span>
+    </div>
+    <div class="stat-cell success">
+      <span class="stat-val">{{ stats.human_count }}</span>
+      <span class="stat-label">Human Written</span>
+    </div>
+    <div class="stat-cell success">
+      <span class="stat-val">{{ stats.safe_count }}</span>
+      <span class="stat-label">Safe</span>
+    </div>
+    <div class="stat-cell danger">
+      <span class="stat-val">{{ stats.unsafe_count }}</span>
+      <span class="stat-label">Unsafe / Phishing</span>
+    </div>
+  </div>
+
+  <!-- CONTINUOUS LEARNING / GROWTH PANEL (NEW FEATURES 2 & 4) -->
+  {% set growth = stats.get('growth', {}) %}
+  <div class="growth-panel fade-up d4">
+    <div class="growth-header">
+      <h4>// CONTINUOUS LEARNING — DATASET GROWTH</h4>
+      <span class="growth-live">● LIVE</span>
+    </div>
+    <div class="growth-row">
+      <!-- AI vs Human Growth -->
+      <div class="growth-col">
+        <div class="growth-col-title">AI vs HUMAN MODEL</div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Growth Rows Added</span>
+          <span class="growth-stat-val">{{ growth.get('ai_human_growth_rows', 0) }}</span>
+        </div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Next Retrain In</span>
+          <span class="growth-stat-val warn">{{ growth.get('next_retrain_at', 100) }} rows</span>
+        </div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Total Retrains</span>
+          <span class="growth-stat-val">{{ growth.get('total_retrains', 0) }}</span>
+        </div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Datasets</span>
+          <span class="growth-stat-val">Human + LLM Generated Emails</span>
+        </div>
+        <div class="growth-progress">
+          {% set ah_pct = [((growth.get('ai_human_growth_rows', 0) % 100) / 100 * 100) | int, 100] | min %}
+          <div class="growth-fill" style="width: {{ ah_pct }}%"></div>
+        </div>
+      </div>
+      <!-- Safe vs Unsafe Growth -->
+      <div class="growth-col">
+        <div class="growth-col-title">SAFE vs UNSAFE MODEL</div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Growth Rows Added</span>
+          <span class="growth-stat-val">{{ growth.get('safe_unsafe_growth_rows', 0) }}</span>
+        </div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Next Retrain In</span>
+          <span class="growth-stat-val warn">{{ growth.get('next_retrain_at', 100) }} rows</span>
+        </div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Last Retrain</span>
+          <span class="growth-stat-val">{{ growth.get('last_retrain', 'Never') }}</span>
+        </div>
+        <div class="growth-stat">
+          <span class="growth-stat-key">Datasets</span>
+          <span class="growth-stat-val">SpamAssassin · Phishing Emails</span>
+        </div>
+        <div class="growth-progress">
+          {% set su_pct = [((growth.get('safe_unsafe_growth_rows', 0) % 100) / 100 * 100) | int, 100] | min %}
+          <div class="growth-fill" style="width: {{ su_pct }}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section fade-up d5">
+    <a href="{{ url_for('main.home') }}" class="btn-next">
+      START ANALYSIS <span class="arrow">→</span>
+    </a>
+    <p class="cta-hint">Upload file &nbsp;•&nbsp; Manual input &nbsp;•&nbsp; Dataset batch</p>
+  </div>
+</main>
+</body>
+</html>

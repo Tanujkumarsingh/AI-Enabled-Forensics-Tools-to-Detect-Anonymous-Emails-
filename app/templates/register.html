@@ -1,0 +1,103 @@
+<!-- ============================================================
+FILE: app/templates/register.html
+PASTE THIS AS: app/templates/register.html
+============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10; --surface: #0d1520; --border: #1a2d45;
+    --accent: #00d4ff; --accent2: #ff4c6a; --accent3: #39ff14;
+    --text: #c8dce8; --muted: #4a6880;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-body: 'Exo 2', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-body); min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  .card {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 440px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 2.5rem 2rem;
+  }
+  .card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+  .logo { font-family: var(--font-head); font-size: 2rem; font-weight: 700; color: var(--accent); letter-spacing: 3px; text-align: center; margin-bottom: 0.3rem; }
+  .logo span { color: var(--accent2); }
+  .logo-sub { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 2px; text-align: center; margin-bottom: 2rem; }
+  .field { margin-bottom: 1.2rem; }
+  label { display: block; font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 0.4rem; }
+  input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 0.85rem; padding: 0.75rem 1rem; outline: none; transition: border-color .2s; }
+  input:focus { border-color: var(--accent); }
+  .btn-submit { width: 100%; padding: 0.9rem; background: transparent; border: 1px solid var(--accent2); color: var(--accent2); font-family: var(--font-head); font-size: 1rem; font-weight: 700; letter-spacing: 3px; cursor: pointer; margin-top: 0.5rem; position: relative; overflow: hidden; transition: color .3s; }
+  .btn-submit::before { content: ''; position: absolute; inset: 0; background: var(--accent2); transform: translateX(-101%); transition: transform .3s ease; z-index: -1; }
+  .btn-submit:hover::before { transform: translateX(0); }
+  .btn-submit:hover { color: #fff; }
+  .footer-link { text-align: center; margin-top: 1.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+  .footer-link a { color: var(--accent); text-decoration: none; }
+  .footer-link a:hover { text-decoration: underline; }
+  .flash-box { padding: 0.7rem 1rem; margin-bottom: 1rem; font-family: var(--font-mono); font-size: 0.75rem; border-left: 3px solid var(--accent2); background: rgba(255,76,106,0.08); color: var(--accent2); }
+  .flash-box.success { border-color: var(--accent3); color: var(--accent3); background: rgba(57,255,20,0.06); }
+  .scanline { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scan 5s linear infinite; opacity: 0.3; pointer-events: none; }
+  @keyframes scan { 0% { top: 0; } 100% { top: 100vh; } }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="card">
+  <div class="logo">Forens<span>IQ</span></div>
+  <div class="logo-sub">// CREATE YOUR INVESTIGATOR ACCOUNT</div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-box {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('auth.register') }}">
+    <div class="field">
+      <label>USERNAME</label>
+      <input type="text" name="username" placeholder="investigator_01" required>
+    </div>
+    <div class="field">
+      <label>EMAIL ADDRESS</label>
+      <input type="email" name="email" placeholder="your@email.com" required>
+    </div>
+    <div class="field">
+      <label>PASSWORD</label>
+      <input type="password" name="password" placeholder="••••••••" required minlength="6">
+    </div>
+    <div class="field">
+      <label>CONFIRM PASSWORD</label>
+      <input type="password" name="confirm_password" placeholder="••••••••" required minlength="6">
+    </div>
+    <button type="submit" class="btn-submit">CREATE ACCOUNT →</button>
+  </form>
+
+  <p class="footer-link">
+    Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
+  </p>
+</div>
+</body>
+</html>

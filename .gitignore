@@ -1,0 +1,58 @@
+# ============================================================
+# FILE: .gitignore
+# PASTE AS: .gitignore  (in your project root)
+# ============================================================
+
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Database (contains user data — do not commit)
+database/users.db
+
+# Uploaded files (user data)
+data/raw/
+data/processed/
+data/attachments/
+datasets/uploaded_datasets/
+
+# Evidence (forensic outputs — may contain PII)
+evidence/
+
+# Reports
+reports/*.pdf
+reports/*.csv
+
+# ML Models (too large for git — use git-lfs or separate storage)
+models/bert_model/
+models/*.pkl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+evidence/logs/

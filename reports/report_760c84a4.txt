@@ -1,0 +1,33 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-37185DA4
+  Generated : 2026-03-21 12:47:13 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Sample Email with Contact Details
+  Sender                : raigar877@gmail.com
+  Domain                : gmail.com
+  Date Sent             : Thu, 19 Mar 2026 01:08:31 +0530
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 65.0 / 100
+  Level                 : HIGH
+  Classification        : Unsafe
+    ► DKIM NONE — message integrity not verified
+    ► Phishing campaign pattern: Generic mass phishing
+    ► Very new sender domain: 30 yr 7 mo
+    ► Sender IP is a known hosting provider (VPS/server)
+    ► Sender IP is a known proxy/VPN
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

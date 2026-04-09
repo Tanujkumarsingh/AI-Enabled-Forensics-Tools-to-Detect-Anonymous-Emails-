@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — History</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10; --surface: #0d1520; --border: #1a2d45;
+    --accent: #00d4ff; --accent2: #ff4c6a; --accent3: #39ff14;
+    --text: #c8dce8; --muted: #4a6880; --card: #0f1e30;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-body: 'Exo 2', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 56px; background: rgba(8,12,16,0.92); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); }
+  .nav-logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
+  .nav-logo span { color: var(--accent2); }
+  .nav-links { display: flex; gap: 1.8rem; }
+  .nav-links a { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); text-decoration: none; letter-spacing: 1px; transition: color .2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+  .nav-user { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent3); letter-spacing: 1px; }
+
+  main { position: relative; z-index: 1; padding: 72px 1.5rem 3rem; max-width: 1000px; margin: 0 auto; }
+
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .page-title { font-family: var(--font-head); font-size: 1.7rem; font-weight: 700; color: #fff; letter-spacing: 2px; }
+  .page-sub { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; margin-top: 0.3rem; }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.3rem; font-family: var(--font-head); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; text-decoration: none; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: all .2s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.danger { border-color: var(--accent2); color: var(--accent2); }
+  .btn.danger:hover { background: rgba(255,76,106,0.08); }
+
+  /* ── SEARCH ── */
+  .search-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; align-items: center; }
+  #search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 0.82rem; padding: 0.6rem 1rem; outline: none; }
+  #search-input:focus { border-color: var(--accent); }
+
+  /* ── HISTORY TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); }
+  thead tr { background: var(--surface); border-bottom: 2px solid var(--accent); }
+  th { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 2px; color: var(--accent); padding: 0.9rem 1rem; text-align: left; white-space: nowrap; }
+  td { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text); padding: 0.75rem 1rem; border-bottom: 1px solid rgba(26,45,69,0.5); white-space: nowrap; }
+  tr:hover td { background: rgba(0,212,255,0.03); }
+  td.subject { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+
+  .badge { padding: 0.2rem 0.6rem; font-size: 0.65rem; font-weight: bold; letter-spacing: 1px; display: inline-block; }
+  .badge.ai     { border: 1px solid var(--accent2); color: var(--accent2); }
+  .badge.human  { border: 1px solid var(--accent3); color: var(--accent3); }
+  .badge.mixed  { border: 1px solid var(--muted);   color: var(--muted); }
+  .badge.safe   { border: 1px solid var(--accent3); color: var(--accent3); }
+  .badge.unsafe { border: 1px solid var(--accent2); color: var(--accent2); }
+  .badge.na     { border: 1px solid var(--muted);   color: var(--muted); }
+  .badge.file   { border: 1px solid var(--accent);  color: var(--accent); }
+  .badge.manual { border: 1px solid #f0a500;         color: #f0a500; }
+  .badge.dataset{ border: 1px solid #b86cff;         color: #b86cff; }
+
+  .link-btn { background: none; border: none; color: var(--accent); font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; text-decoration: underline; padding: 0; }
+  .link-btn:hover { color: #fff; }
+  .link-btn.del { color: var(--accent2); }
+
+  .empty-state { text-align: center; padding: 4rem 2rem; }
+  .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+  .empty-state p { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+  .scanline { position: fixed; top: 56px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scan 4s linear infinite; opacity: 0.3; pointer-events: none; z-index: 200; }
+  @keyframes scan { 0% { top: 56px; } 100% { top: 100vh; } }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<nav>
+  <div class="nav-logo">Forens<span>IQ</span></div>
+  <div class="nav-links">
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('main.home') }}">Analyze</a>
+    <a href="{{ url_for('main.history') }}" class="active">History</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+  <div class="nav-user">[ {{ session.get('username', 'user') }} ]</div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">📋 Analysis History</h1>
+      <p class="page-sub">// ALL FORENSIC ANALYSES PERFORMED BY YOUR ACCOUNT</p>
+    </div>
+    {% if records %}
+    <form method="POST" action="{{ url_for('main.history_clear') }}" onsubmit="return confirm('Clear ALL history? This cannot be undone.')">
+      <button type="submit" class="btn danger">🗑 Clear All History</button>
+    </form>
+    {% endif %}
+  </div>
+
+  {% if records %}
+  <!-- Search -->
+  <div class="search-row">
+    <input type="text" id="search-input" placeholder="Search subject, sender, IP..." oninput="filterHistory()">
+  </div>
+
+  <div class="table-wrap">
+    <table id="history-table">
+      <thead>
+        <tr>
+          <th>DATE / TIME</th>
+          <th>TYPE</th>
+          <th>INPUT</th>
+          <th>AI / HUMAN</th>
+          <th>VERDICT</th>
+          <th>RISK</th>
+          <th>SENDER</th>
+          <th>IP</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rec in records %}
+        <tr>
+          <td style="color:var(--muted)">{{ rec.created_at[:16].replace('T',' ') }}</td>
+          <td>
+            <span class="badge {{ rec.analysis_type }}">{{ rec.analysis_type | upper }}</span>
+          </td>
+          <td class="subject" title="{{ rec.input_summary }}">{{ rec.input_summary or '—' }}</td>
+          <td>
+            {% set lbl = rec.ai_or_human or 'N/A' %}
+            <span class="badge {{ lbl | lower }}">{{ lbl }}</span>
+          </td>
+          <td>
+            {% set cls = rec.classification or 'N/A' %}
+            <span class="badge {{ cls | lower }}">{{ cls }}</span>
+          </td>
+          <td>
+            {% set rk = (rec.risk_score or 0) | float %}
+            <span style="color:{{ '#ff4c6a' if rk > 66 else ('#f0a500' if rk > 33 else '#39ff14') }}">
+              {{ rk | int }}
+            </span>
+          </td>
+          <td style="color:var(--accent)">{{ rec.sender_email or '—' }}</td>
+          <td style="color:var(--muted)">{{ (rec.ip_address or '—')[:20] }}{% if rec.ip_address and rec.ip_address|length > 20 %}…{% endif %}</td>
+          <td style="display:flex;gap:.8rem;">
+            <a href="{{ url_for('main.history_detail', record_id=rec.id) }}" class="link-btn">View</a>
+            <form method="POST" action="{{ url_for('main.history_delete', record_id=rec.id) }}" style="display:inline" onsubmit="return confirm('Delete this record?')">
+              <button type="submit" class="link-btn del">Del</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-icon">📭</span>
+    <p>No analysis history yet. Start by analyzing your first email.</p>
+    <a href="{{ url_for('main.home') }}" class="btn" style="border-color:var(--accent);color:var(--accent);">→ Analyze Email</a>
+  </div>
+  {% endif %}
+
+</main>
+
+<script>
+  function filterHistory() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    document.querySelectorAll('#history-table tbody tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

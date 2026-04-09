@@ -1,0 +1,29 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-537E6A78
+  Generated : 2026-03-21 13:21:40 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Weekend hiking trip
+  Sender                : amit.verma@outlook.com
+  Domain                : outlook.com
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 5.0 / 100
+  Level                 : LOW
+  Classification        : Safe
+    ► DKIM NONE — message integrity not verified
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

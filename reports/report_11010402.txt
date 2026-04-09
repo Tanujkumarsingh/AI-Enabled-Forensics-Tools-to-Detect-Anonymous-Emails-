@@ -1,0 +1,30 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-14051127
+  Generated : 2026-03-21 13:19:44 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Project update - Q4 roadmap
+  Sender                : priya.sharma@mycompany.in
+  Domain                : mycompany.in
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 20.0 / 100
+  Level                 : LOW
+  Classification        : Safe
+    ► SPF ERROR — sender domain not authorized
+    ► DKIM NONE — message integrity not verified
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

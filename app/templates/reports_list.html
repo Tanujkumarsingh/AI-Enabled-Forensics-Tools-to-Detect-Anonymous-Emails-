@@ -1,0 +1,209 @@
+<!-- ============================================================
+FILE: app/templates/reports_list.html
+PASTE AS: app/templates/reports_list.html  (NEW FILE)
+============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080c10;--surface:#0d1520;--border:#1a2d45;
+    --accent:#00d4ff;--accent2:#ff4c6a;--accent3:#39ff14;
+    --text:#c8dce8;--muted:#4a6880;--card:#0f1e30;
+    --font-mono:'Share Tech Mono',monospace;
+    --font-head:'Rajdhani',sans-serif;
+    --font-body:'Exo 2',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;
+    background-image:linear-gradient(rgba(0,212,255,.03)1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,.03)1px,transparent 1px);
+    background-size:40px 40px;pointer-events:none;z-index:0}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;
+    justify-content:space-between;padding:0 2rem;height:56px;
+    background:rgba(8,12,16,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}
+  .nav-logo{font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--accent);
+    letter-spacing:2px;text-decoration:none}
+  .nav-logo span{color:var(--accent2)}
+  .nav-links{display:flex;gap:1.8rem}
+  .nav-links a{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);
+    text-decoration:none;letter-spacing:1px;transition:color .2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--accent)}
+  .nav-user{font-family:var(--font-mono);font-size:.78rem;color:var(--accent3);letter-spacing:1px}
+
+  main{position:relative;z-index:1;padding:72px 1.5rem 3rem;max-width:900px;margin:0 auto}
+
+  .page-header{display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+  .page-title{font-family:var(--font-head);font-size:1.7rem;font-weight:700;color:#fff;letter-spacing:2px}
+  .page-sub{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);letter-spacing:1px;margin-top:.3rem}
+
+  /* Info box */
+  .info-box{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);
+    padding:1rem 1.2rem;margin-bottom:2rem;
+    font-family:var(--font-mono);font-size:.75rem;color:var(--muted);line-height:1.7}
+  .info-box strong{color:var(--accent)}
+
+  /* Table */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;background:var(--card)}
+  thead tr{background:var(--surface);border-bottom:2px solid var(--accent)}
+  th{font-family:var(--font-mono);font-size:.65rem;letter-spacing:2px;
+    color:var(--accent);padding:.9rem 1rem;text-align:left;white-space:nowrap}
+  td{font-family:var(--font-mono);font-size:.72rem;color:var(--text);
+    padding:.75rem 1rem;border-bottom:1px solid rgba(26,45,69,.5);white-space:nowrap}
+  tr:hover td{background:rgba(0,212,255,.03)}
+
+  .badge{display:inline-block;padding:.2rem .6rem;font-size:.65rem;font-weight:700;letter-spacing:1px}
+  .badge.pdf{border:1px solid var(--accent2);color:var(--accent2)}
+  .badge.txt{border:1px solid var(--muted);color:var(--muted)}
+  .badge.csv{border:1px solid var(--accent3);color:var(--accent3)}
+
+  .btn-dl{display:inline-flex;align-items:center;gap:.4rem;
+    background:rgba(0,212,255,.07);border:1px solid var(--accent);
+    color:var(--accent);font-family:var(--font-mono);font-size:.7rem;
+    padding:.35rem .9rem;text-decoration:none;transition:all .2s;letter-spacing:1px}
+  .btn-dl:hover{background:rgba(0,212,255,.15)}
+
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;
+    font-family:var(--font-head);font-size:.9rem;font-weight:600;letter-spacing:1px;
+    cursor:pointer;text-decoration:none;border:1px solid var(--border);
+    background:var(--surface);color:var(--text);transition:all .2s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{border-color:var(--accent);color:var(--accent)}
+
+  .empty-state{text-align:center;padding:4rem 2rem}
+  .empty-state p{font-family:var(--font-mono);font-size:.8rem;color:var(--muted);margin-bottom:1.5rem}
+
+  .flash-box{padding:.7rem 1rem;margin-bottom:1rem;font-family:var(--font-mono);
+    font-size:.75rem;border-left:3px solid var(--accent2);
+    background:rgba(255,76,106,.08);color:var(--accent2)}
+  .flash-box.warning{border-color:#f0a500;color:#f0a500;background:rgba(240,165,0,.06)}
+  .flash-box.success{border-color:var(--accent3);color:var(--accent3);background:rgba(57,255,20,.06)}
+
+  .search-row{display:flex;gap:1rem;margin-bottom:1.2rem}
+  #search-input{flex:1;background:var(--surface);border:1px solid var(--border);
+    color:var(--text);font-family:var(--font-mono);font-size:.82rem;
+    padding:.6rem 1rem;outline:none}
+  #search-input:focus{border-color:var(--accent)}
+
+  .scanline{position:fixed;top:56px;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    animation:scan 4s linear infinite;opacity:.3;pointer-events:none;z-index:200}
+  @keyframes scan{0%{top:56px}100%{top:100vh}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<nav>
+  <a href="{{ url_for('main.dashboard') }}" class="nav-logo">Forens<span>IQ</span></a>
+  <div class="nav-links">
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('main.home') }}">Analyze</a>
+    <a href="{{ url_for('main.history') }}">History</a>
+    <a href="{{ url_for('main.reports_list') }}" class="active">Reports</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+  <div class="nav-user">[ {{ session.get('username','user') }} ]</div>
+</nav>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-box {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">📄 Saved Reports</h1>
+      <p class="page-sub">// ALL PDF FORENSIC REPORTS AND DATASET CSVs — DOWNLOAD ANYTIME</p>
+    </div>
+    <div style="display:flex;gap:1rem">
+      <a href="{{ url_for('main.home') }}" class="btn primary">+ New Analysis</a>
+    </div>
+  </div>
+
+  <div class="info-box">
+    Every email you analyze generates a <strong>PDF forensic report</strong> saved to
+    <strong>reports/</strong> folder in your project directory.
+    You can download any report from this page at any time.
+    Reports are stored permanently until you delete them manually.
+    <br><br>
+    If PDF shows as <strong>Text Report (.txt)</strong> it means
+    <strong>fpdf2</strong> is not installed — run:
+    <strong>pip install fpdf2</strong> and re-analyze to get PDF format.
+  </div>
+
+  {% if reports %}
+  <div class="search-row">
+    <input type="text" id="search-input" placeholder="Search by filename or date..."
+           oninput="filterReports()">
+  </div>
+
+  <div class="table-wrap">
+    <table id="reports-table">
+      <thead>
+        <tr>
+          <th>FILENAME</th>
+          <th>TYPE</th>
+          <th>SIZE</th>
+          <th>SAVED AT</th>
+          <th>DOWNLOAD</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reports %}
+        <tr>
+          <td style="font-size:.7rem;color:var(--muted)">
+            {{ r.filename }}
+          </td>
+          <td>
+            <span class="badge {{ r.ext[1:] }}">{{ r.type }}</span>
+          </td>
+          <td>{{ r.size_kb }} KB</td>
+          <td>{{ r.modified }}</td>
+          <td>
+            {% if r.ext == '.pdf' %}
+              <a href="{{ url_for('main.download_report', filename=r.filename) }}"
+                 class="btn-dl">⬇ PDF</a>
+            {% elif r.ext == '.txt' %}
+              <a href="{{ url_for('main.download_report', filename=r.filename) }}"
+                 class="btn-dl">⬇ TXT</a>
+            {% elif r.ext == '.csv' %}
+              <a href="{{ url_for('main.download_dataset', filename=r.filename) }}"
+                 class="btn-dl">⬇ CSV</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <p>No reports saved yet. Analyze an email to generate your first forensic report.</p>
+    <a href="{{ url_for('main.home') }}" class="btn primary">→ Analyze Email</a>
+  </div>
+  {% endif %}
+
+</main>
+
+<script>
+function filterReports() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  document.querySelectorAll('#reports-table tbody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+======================================================================
+  ForensIQ — Email Forensic Intelligence Report
+  Report ID : FIQ-1DD64500
+  Generated : 2026-03-21 13:22:15 UTC
+======================================================================
+
+
+── EMAIL SUMMARY ──
+--------------------------------------------------
+  Subject               : Free iPhone 15 Pro - Limited offer
+  Sender                : promo@apple-giveaway-winners.info
+  Domain                : apple-giveaway-winners.info
+  Date Sent             : 
+
+── AI vs HUMAN DETECTION ──
+--------------------------------------------------
+  Verdict               : Unknown
+  Confidence            : 0.0%
+
+── RISK VERDICT ──
+--------------------------------------------------
+  Risk Score            : 100.0 / 100
+  Level                 : CRITICAL
+  Classification        : Unsafe
+    ► SPF ERROR — sender domain not authorized
+    ► DKIM NONE — message integrity not verified
+    ► 1 suspicious URL(s) detected (+10pts)
+    ► Phishing keywords detected: score 99/100, 7 matches (critical, high, medium) +40pts
+    ► Suspicious subject line keywords: free iphone
+    ► Phishing campaign pattern: Fake product giveaway +15pts
+    ► Prize claim scam
+    ► Fake product giveaway
+    ► Brand impersonation: 'apple' in domain but not the real apple.com
+
+======================================================================
+  NOTE: Install fpdf2 for full PDF report: pip install fpdf2
+======================================================================

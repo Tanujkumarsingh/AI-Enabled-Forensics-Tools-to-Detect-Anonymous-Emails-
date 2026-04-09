@@ -1,0 +1,13 @@
+timestamp,sender_email,sender_name,sender_domain,subject,body_preview,risk_score,classification,su_method,su_confidence,su_signals,ip_addresses,geolocation,isp,domain_age,spf,dkim,spoof_detected,social_links,osint_profiles,gravatar_found,anonymity_score,anonymity_verdict,phones,breach_count,phishing_host,suspicious_urls,keyword_score,sender_id_name,sender_id_score,sender_id_location,sender_id_qualification,is_anonymous,anonymous_reason
+2026-04-09T16:28:04.907108Z,newsletters-noreply@linkedin.com,DaVinci Commerce via LinkedIn,linkedin.com,AI Is Becoming The New Storefront,"Commerce Media Radar
+
+By DaVinci Commerce
+
+
+By DaVinci Commerce
+
+    
+    
+    Read this article on LinkedIn to join the conversation
+Read on LinkedIn
+https://www.linkedin.com/comm/pulse/ai-becoming-new-storefront-davincicommerce-zuske?lipi=urn%3Ali%3Apage%3Aemail_email_series_follow_newsletter_01%3BIqeNyiorS5S5wJgWW4vhyQ%3D%3D&midToken=AQG-PfwWt6QZ5Q&midSig=1aa3SyU7-RCcc1&trk=eml-email_series_follow_newsletter_01-null-0-read_more_banner_cta_&trkEmail=eml-email_series_follow_newslette",48.0,Unsafe,rule_based,95.0,✓ No strong phishing signals detected,108.174.0.193; 04.09.09.14,"Ashburn, Virginia United States",LinkedIn Corporation,23 yr 5 mo,error,pass,True,https://www.instagram.com/newsletters-noreply/; https://twitter.com/newsletters-noreply; https://www.reddit.com/user/newsletters-noreply; https://www.pinterest.com/newsletters-noreply/; https://t.me/newsletters-noreply; https://steamcommunity.com/id/newsletters-noreply; https://open.spotify.com/user/newsletters-noreply; https://www.twitch.tv/newsletters-noreply; https://hacker-news.firebaseio.com/v0/user/newsletters-noreply.json; https://www.google.com/search?q=%22newsletters-noreply%40linkedin.com%22+site%3Ainstagram.com+OR+site%3Alinkedin.com+OR+site%3Afacebook.com+OR+site%3Atwitter.com; https://www.google.com/search?q=%22newsletters-noreply%22+email+social+profile; https://www.linkedin.com/search/results/people/?keywords=DaVinci+Commerce+via+LinkedIn; https://www.facebook.com/search/top?q=DaVinci+Commerce+via+LinkedIn; https://www.google.com/search?q=%22DaVinci+Commerce+via+LinkedIn%22+%22phone%22+OR+%22mobile%22+OR+%22contact%22,"Instagram, Twitter/X, Reddit, Pinterest, Telegram, Steam",False,18,Fully Identifiable,7084849016,0,,https://www.prnewswire.com/news-releases/davinci-commerce-announces-agentic-brandstore-to-power-ai-storefronts-secures-strategic-financing-and-global-partnership-with-accenture-302721429.html,2,newsletters-noreply,182,,NIT,False,

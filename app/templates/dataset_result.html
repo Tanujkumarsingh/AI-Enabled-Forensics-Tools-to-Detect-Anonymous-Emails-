@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForensIQ — Dataset Results</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#080c10;--surface:#0d1520;--border:#1a2d45;--accent:#00d4ff;--accent2:#ff4c6a;--accent3:#39ff14;--warn:#f0a500;--text:#c8dce8;--muted:#4a6880;--card:#0f1e30;--font-mono:'Share Tech Mono',monospace;--font-head:'Rajdhani',sans-serif;--font-body:'Exo 2',sans-serif}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:56px;background:rgba(8,12,16,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}
+  .nav-logo{font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--accent);letter-spacing:2px}
+  .nav-logo span{color:var(--accent2)}
+  .nav-links{display:flex;gap:1.8rem}
+  .nav-links a{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);text-decoration:none;letter-spacing:1px;transition:color .2s}
+  .nav-links a:hover{color:var(--accent)}
+  .nav-user{font-family:var(--font-mono);font-size:.78rem;color:var(--accent3);letter-spacing:1px}
+  main{position:relative;z-index:1;padding:72px 1.5rem 3rem;max-width:1300px;margin:0 auto}
+  .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+  .page-title{font-family:var(--font-head);font-size:1.7rem;font-weight:700;color:#fff;letter-spacing:2px}
+  .page-sub{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);letter-spacing:1px;margin-top:.3rem}
+  /* Summary bar */
+  .sum-bar{display:flex;gap:0;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
+  .sum-cell{flex:1;background:var(--card);padding:1rem;text-align:center;border-right:1px solid var(--border)}
+  .sum-cell:last-child{border-right:none}
+  .sum-val{font-family:var(--font-mono);font-size:1.6rem;display:block}
+  .sum-label{font-size:.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+  .sum-val.accent{color:var(--accent)}.sum-val.danger{color:var(--accent2)}.sum-val.success{color:var(--accent3)}.sum-val.warn{color:var(--warn)}
+  /* Growth notice */
+  .growth-notice{font-family:var(--font-mono);font-size:.67rem;color:var(--muted);padding:.55rem 1rem;border:1px solid var(--border);background:var(--surface);margin-bottom:1.5rem;letter-spacing:1px}
+  .growth-notice span{color:var(--accent3)}
+  /* Download */
+  .btn-dl{display:inline-flex;align-items:center;gap:.6rem;background:rgba(57,255,20,.08);border:1px solid var(--accent3);color:var(--accent3);font-family:var(--font-head);font-size:.9rem;font-weight:600;letter-spacing:1px;padding:.65rem 1.4rem;text-decoration:none;transition:all .2s}
+  .btn-dl:hover{background:rgba(57,255,20,.18)}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.4rem;font-family:var(--font-head);font-size:.9rem;font-weight:600;letter-spacing:1px;cursor:pointer;text-decoration:none;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .2s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  /* Search */
+  .search-row{display:flex;gap:1rem;margin-bottom:1.2rem;align-items:center;flex-wrap:wrap}
+  #search-input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:.82rem;padding:.6rem 1rem;outline:none}
+  #search-input:focus{border-color:var(--accent)}
+  .filter-btns{display:flex;gap:.4rem;flex-wrap:wrap}
+  .filter-btn{background:none;border:1px solid var(--border);font-family:var(--font-mono);font-size:.68rem;letter-spacing:1px;color:var(--muted);padding:.45rem .85rem;cursor:pointer;transition:all .2s}
+  .filter-btn.active,.filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+  /* Table */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;background:var(--card)}
+  thead tr{background:var(--surface);border-bottom:2px solid var(--accent)}
+  th{font-family:var(--font-mono);font-size:.63rem;letter-spacing:2px;color:var(--accent);padding:.85rem 1rem;text-align:left;white-space:nowrap}
+  td{font-family:var(--font-mono);font-size:.7rem;color:var(--text);padding:.7rem 1rem;border-bottom:1px solid rgba(26,45,69,.5);white-space:nowrap}
+  tr:hover td{background:rgba(0,212,255,.03)}
+  /* Badges */
+  .badge{padding:.18rem .55rem;font-size:.62rem;font-weight:bold;letter-spacing:1px;display:inline-block;border:1px solid}
+  .badge.ai{border-color:var(--warn);color:var(--warn)}
+  .badge.human{border-color:var(--accent3);color:var(--accent3)}
+  .badge.safe{border-color:var(--accent3);color:var(--accent3)}
+  .badge.unsafe{border-color:var(--accent2);color:var(--accent2)}
+  .badge.anon{border-color:var(--accent2);color:var(--accent2);font-size:.58rem}
+  .badge.na{border-color:var(--muted);color:var(--muted)}
+  .risk-pill{display:inline-block;padding:.12rem .45rem;font-size:.67rem}
+  .risk-pill.low{color:var(--accent3)}.risk-pill.med{color:var(--warn)}.risk-pill.high{color:var(--accent2)}
+  /* Step col */
+  .step-tag{font-size:.6rem;color:var(--muted);font-family:var(--font-mono)}
+  /* Anonymous row */
+  tr.anon-row td{background:rgba(255,76,106,.04) !important}
+  /* Candidate info */
+  .cand-info{font-family:var(--font-mono);font-size:.62rem;color:var(--muted);margin-top:.2rem}
+  .scanline{position:fixed;top:56px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 4s linear infinite;opacity:.3;pointer-events:none;z-index:200}
+  @keyframes scan{0%{top:56px}100%{top:100vh}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<nav>
+  <div class="nav-logo">Forens<span>IQ</span></div>
+  <div class="nav-links">
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('main.home') }}">Analyze</a>
+    <a href="{{ url_for('main.history') }}">History</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+  <div class="nav-user">[ {{ session.get('username','user') }} ]</div>
+</nav>
+
+<main>
+<div class="page-header">
+  <div>
+    <div class="page-title">📊 DATASET ANALYSIS RESULTS</div>
+    <div class="page-sub">// {{ total }} emails processed · Full pipeline applied to each email</div>
+  </div>
+  <div style="display:flex;gap:.7rem;flex-wrap:wrap;align-items:center">
+    {% if csv_file %}
+    <a href="{{ url_for('main.download_dataset', filename=csv_file) }}" class="btn-dl">⬇ Download Full CSV</a>
+    {% endif %}
+    <a href="{{ url_for('main.home') }}" class="btn">⚡ New Analysis</a>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
+{% set ai_count    = rows|selectattr('ai_or_human','equalto','AI')|list|length %}
+{% set human_count = rows|selectattr('ai_or_human','equalto','Human')|list|length %}
+{% set safe_count  = rows|selectattr('safe','equalto','Safe')|list|length %}
+{% set unsafe_count= rows|selectattr('safe','equalto','Unsafe')|list|length %}
+{% set anon_count  = rows|selectattr('is_anonymous')|list|length %}
+<div class="sum-bar">
+  <div class="sum-cell"><span class="sum-val accent">{{ total }}</span><span class="sum-label">Total Emails</span></div>
+  <div class="sum-cell"><span class="sum-val warn">{{ ai_count }}</span><span class="sum-label">AI/Machine</span></div>
+  <div class="sum-cell"><span class="sum-val success">{{ human_count }}</span><span class="sum-label">Human Written</span></div>
+  <div class="sum-cell"><span class="sum-val success">{{ safe_count }}</span><span class="sum-label">Safe</span></div>
+  <div class="sum-cell"><span class="sum-val danger">{{ unsafe_count }}</span><span class="sum-label">Unsafe</span></div>
+  <div class="sum-cell"><span class="sum-val danger">{{ anon_count }}</span><span class="sum-label">Anonymous</span></div>
+</div>
+
+<div class="growth-notice">
+  📈 <span>CONTINUOUS LEARNING</span> — All {{ total }} emails added to training datasets.
+  AI/Human dataset and Safe/Unsafe dataset both updated automatically.
+</div>
+
+<!-- SEARCH + FILTER -->
+<div class="search-row">
+  <input type="text" id="search-input" placeholder="🔍 Search by subject, sender, verdict..." oninput="filterRows()">
+  <div class="filter-btns">
+    <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
+    <button class="filter-btn" onclick="setFilter('ai',this)">AI ONLY</button>
+    <button class="filter-btn" onclick="setFilter('human',this)">HUMAN ONLY</button>
+    <button class="filter-btn" onclick="setFilter('safe',this)">SAFE</button>
+    <button class="filter-btn" onclick="setFilter('unsafe',this)">UNSAFE</button>
+    <button class="filter-btn" onclick="setFilter('anonymous',this)">⚠ ANONYMOUS</button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="results-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>SUBJECT</th>
+        <th>SENDER</th>
+        <th>AI / HUMAN</th>
+        <th>SAFE / UNSAFE</th>
+        <th>RISK</th>
+        <th>STEP</th>
+        <th>ANONYMITY</th>
+        <th>IDENTITY / CANDIDATE</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in rows %}
+    {% set is_ai     = row.ai_or_human == 'AI' %}
+    {% set is_unsafe = row.safe == 'Unsafe' %}
+    {% set is_human_safe = row.ai_or_human == 'Human' and row.safe == 'Safe' %}
+    {% set risk_cls  = 'high' if row.risk_score > 66 else ('med' if row.risk_score > 33 else 'low') %}
+    <tr class="{{ 'anon-row' if row.is_anonymous else '' }}"
+        data-ai="{{ row.ai_or_human|lower }}"
+        data-safe="{{ row.safe|lower }}"
+        data-anon="{{ 'true' if row.is_anonymous else 'false' }}"
+        data-subject="{{ row.subject|lower }}"
+        data-sender="{{ row.sender|lower }}">
+      <td>{{ row.index }}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis">{{ row.subject }}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">{{ row.sender }}</td>
+      <td>
+        <span class="badge {{ 'ai' if is_ai else 'human' }}">{{ row.ai_or_human }}</span>
+        <div class="step-tag">{{ (row.confidence * 100)|round(0)|int }}% conf</div>
+      </td>
+      <td>
+        {% if is_ai %}
+        <span class="badge {{ 'safe' if row.safe == 'Safe' else 'unsafe' }}">{{ row.safe }}</span>
+        {% else %}
+        <span class="badge {{ 'safe' if row.safe == 'Safe' else 'unsafe' }}">{{ row.safe }}</span>
+        {% endif %}
+      </td>
+      <td><span class="risk-pill {{ risk_cls }}">{{ row.risk_score|round(0)|int }}</span></td>
+      <td>
+        {% if row.step == 1 %}<span class="step-tag" style="color:var(--warn)">STEP 1</span>
+        {% elif row.step == 2 %}<span class="step-tag" style="color:var(--accent3)">STEP 2</span>
+        {% else %}<span class="step-tag" style="color:var(--accent2)">STEP 3</span>{% endif %}
+      </td>
+      <td>
+        {% if is_ai %}
+        <span class="badge na">N/A</span>
+        {% elif row.is_anonymous %}
+        <span class="badge anon">⚠ ANONYMOUS</span>
+        {% else %}
+        <span style="font-family:var(--font-mono);font-size:.68rem;color:var(--text)">{{ row.anon_verdict[:25] if row.anon_verdict else '—' }}</span>
+        <div class="cand-info">Score: {{ row.anon_score }}</div>
+        {% endif %}
+      </td>
+      <td>
+        {% if is_ai %}
+        <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted)">No identity lookup</span>
+        {% elif row.is_anonymous %}
+        <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent2)">Anonymous — No digital footprint</span>
+        {% elif row.top_candidate_name %}
+        <span style="font-family:var(--font-mono);font-size:.7rem;color:var(--accent)">🎯 {{ row.top_candidate_name }}</span>
+        {% if row.top_candidate_location %}<div class="cand-info">📍 {{ row.top_candidate_location }}</div>{% endif %}
+        {% else %}
+        <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted)">—</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="margin-top:1.5rem;display:flex;gap:.8rem;flex-wrap:wrap">
+  {% if csv_file %}
+  <a href="{{ url_for('main.download_dataset', filename=csv_file) }}" class="btn-dl">⬇ Download Full CSV (All Details)</a>
+  {% endif %}
+  <a href="{{ url_for('main.home') }}" class="btn">⚡ Analyze Another Dataset</a>
+  <a href="{{ url_for('main.dashboard') }}" class="btn">📊 Dashboard</a>
+</div>
+
+<div style="font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-top:1rem;padding:.7rem;border:1px solid var(--border);background:var(--surface)">
+  ℹ CSV columns explanation: AI emails have fewer columns (only Safe/Unsafe + basic info).
+  Human Safe emails have IP + geo + domain details.
+  Human Unsafe emails have ALL columns including social links, OSINT, sender identity, anonymous reason.
+</div>
+</main>
+
+<script>
+let currentFilter = 'all';
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterRows();
+}
+function filterRows() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  document.querySelectorAll('#results-table tbody tr').forEach(tr => {
+    const ai    = tr.dataset.ai || '';
+    const safe  = tr.dataset.safe || '';
+    const anon  = tr.dataset.anon || 'false';
+    const subj  = tr.dataset.subject || '';
+    const sndr  = tr.dataset.sender || '';
+    let show = true;
+    if (currentFilter === 'ai')        show = ai === 'ai';
+    else if (currentFilter === 'human') show = ai === 'human';
+    else if (currentFilter === 'safe')  show = safe === 'safe';
+    else if (currentFilter === 'unsafe')show = safe === 'unsafe';
+    else if (currentFilter === 'anonymous') show = anon === 'true';
+    if (show && q) show = subj.includes(q) || sndr.includes(q);
+    tr.style.display = show ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
